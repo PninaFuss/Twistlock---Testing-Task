@@ -5,8 +5,8 @@ from requests.auth import HTTPBasicAuth
 
 username = 'admin'
 password = 'admin'
-base_url = 'http://localhost:8000/players?page=8'
-logfile = "log_from_the_same_page.log"
+url_server = "http://localhost:8000/players?page="
+logfile = "log_from_different_pages.log"
 
 
 @pytest.fixture(autouse=True, scope="function")
@@ -21,15 +21,11 @@ def start_server():
     p.kill()
 
 
-@pytest.mark.parametrize("number", [x for x in range(9)])
-def test_get_one(start_server, number):
-    response = requests.get(base_url, auth=HTTPBasicAuth(username, password))
+@pytest.mark.parametrize("page_number", [x+1 for x in range(9)])
+def test_get_one(start_server, page_number):
+    response = requests.get(url_server+str(page_number), auth=HTTPBasicAuth(username, password))
     assert response.status_code == 200
 
 
 
 
-
-
-
-#
