@@ -38,5 +38,5 @@ def test_get_men(start_server):
             cpu = p.cpu_percent()
             print("Memory Perentage for twtask process is " + str(memory))
             assert memory < 10
-            assert cpu < 6
+            assert cpu < 25
 
