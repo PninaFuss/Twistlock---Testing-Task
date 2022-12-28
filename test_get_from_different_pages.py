@@ -21,7 +21,7 @@ def start_server():
     p.kill()
 
 
-@pytest.mark.parametrize("page_number", [x+1 for x in range(9)])
+@pytest.mark.parametrize("page_number", [x+1 for x in range(8)])
 def test_get_one(start_server, page_number):
     response = requests.get(url_server+str(page_number), auth=HTTPBasicAuth(username, password))
     assert response.status_code == 200
