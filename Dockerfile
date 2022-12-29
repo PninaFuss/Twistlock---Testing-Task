@@ -12,6 +12,8 @@ RUN pip install pytest-parallel
 RUN pip install psutil
 
 # copy twtask and test
-COPY . .
+COPY . . 
+
+
 # final configuration 
-CMD pytest tests.py
+CMD pytest test_get_from_different_pages.py --workers 8
