@@ -178,18 +178,19 @@ class TestPerformance:
 
 @pytest.mark.skip
 class TestParallel:
+    class TestParallel:
 
-    def test_get_from_different_pages_parallel(self):
-        p = subprocess.Popen(['pytest', 'test_get_from_different_pages.py', '--workers', '8'],
-                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        res = p.communicate()
-        assert b"FAILED" not in res[0]
+        def test_get_from_different_pages_parallel(self):
+            p = subprocess.Popen(['pytest', 'test_get_from_different_pages.py', '-n ', '8'],
+                                 stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            res = p.communicate()
+            assert b"FAILED" not in res[0]
 
-    def test_get_from_the_same_pages_parallel(self):
-        p = subprocess.Popen(['pytest', 'tests_get_from_the_same_page.py', '--workers', '8'],
-                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        res = p.communicate()
-        assert b"FAILED" not in res[0]
+        def test_get_from_the_same_pages_parallel(self):
+            p = subprocess.Popen(['pytest', 'tests_get_from_the_same_page.py', '-n', '8'],
+                                 stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            res = p.communicate()
+            assert b"FAILED" not in res[0]
 
 
 @pytest.mark.skip
