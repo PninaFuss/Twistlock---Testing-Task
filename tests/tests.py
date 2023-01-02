@@ -11,27 +11,9 @@ password = 'admin'
 url_server = "http://localhost:8000/players?page="
 base_url = 'http://localhost:8000/players?page=2'
 logfile = "log.log"
-
-
-@pytest.fixture(autouse=False, scope="class")
-def start_server():
-    try:
-        p = subprocess.Popen("./twtask")
-        yield
-        p.kill()
-    except Exception as e:
-        sys.exit(f"Error {e}")
-
-
-@pytest.fixture(scope="function")
-def start_server_and_log():
-    try:
-        outfile = open(logfile, 'w')
-        p = subprocess.Popen("./twtask", bufsize=0, stdout=outfile)
-        yield outfile
-        p.kill()
-    except Exception as e:
-        sys.exit(f"Error {e}")
+cpu_threshold = 95
+mem_threshold = 45
+max_microseconds = 35000
 
 
 @pytest.mark.usefixtures("start_server_and_log")
@@ -136,7 +118,7 @@ class TestGetPlayer:
                 assert k and v, print(f"no value in {dict_plyer}")
 
 
-class TestRelability:
+class TestReliability:
     """get twice from server and compare the result is not changed"""
     def test_get_twice_from_server_and_compare(self, start_server):
         response = requests.get(base_url, auth=HTTPBasicAuth(username, password))
@@ -180,6 +162,36 @@ class TestRelability:
                 assert player_list_3_pages[i][j]["ID"] != player_list_3_pages[i+1][j]["ID"]
 
 
+class TestPerformance:
+    def test_cpu(self, get_performance):
+        """Test cpu"""
+        assert max(get_performance["CPU"]) < cpu_threshold
+
+    def test_memory(self, get_performance):
+        """Test memory"""
+        assert max(get_performance["MEMORY"]) < mem_threshold
+
+    def test_time_response(self, get_performance):
+        """Test the time of response"""
+        assert max(get_performance["TIME_RES"]).microseconds < max_microseconds
+
+
+@pytest.mark.skip
+class TestParallel:
+
+    def test_get_from_different_pages_parallel(self):
+        p = subprocess.Popen(['pytest', 'test_get_from_different_pages.py', '--workers', '8'],
+                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        res = p.communicate()
+        assert b"FAILED" not in res[0]
+
+    def test_get_from_the_same_pages_parallel(self):
+        p = subprocess.Popen(['pytest', 'tests_get_from_the_same_page.py', '--workers', '8'],
+                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        res = p.communicate()
+        assert b"FAILED" not in res[0]
+
+
 @pytest.mark.skip
 class TestStress:
     def test_stress(self, start_server):
@@ -187,6 +199,8 @@ class TestStress:
             response = requests.get(base_url,
                                     auth=HTTPBasicAuth(username, password))
             assert response.status_code == 200
+
+
 
 
 
